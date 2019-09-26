@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_dev_tracker/app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/preferences_keys.dart' as PreferencesKeys;
 import 'package:http/http.dart' as http;
@@ -66,6 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
         key: _scaffoldKey,
+        appBar: DevTrackerAppBar(),
         body: Container(
           margin: EdgeInsets.all(20.0),
           child: AbsorbPointer(

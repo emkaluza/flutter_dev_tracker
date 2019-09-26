@@ -3,16 +3,25 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dev_tracker/utils/app_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  await AppPreferences.init();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute: '/',
       title: "Cognitran Dev-Tracker",
-      home: LoginScreen(),
+      routes: {
+        '/' : (context) => LoginScreen(),
+        '/tracker' : (context) => null,
+      },
     );
   }
 }

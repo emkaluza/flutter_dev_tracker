@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dev_tracker/app_bar.dart';
+import 'package:flutter_dev_tracker/utils/app_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'utils/preferences_keys.dart' as PreferencesKeys;
 import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
@@ -45,6 +45,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       controller: TextEditingController(text: _userName),
       onChanged: (text) => _userName = _userNameField.controller.text,
+      onTap: (){
+        final _controller = _userNameField.controller;
+        _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
+      },
+      textCapitalization: TextCapitalization.none,
     );
 
     _passwordField = TextField(
@@ -53,6 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       controller: TextEditingController(text: _userPassword),
       onChanged: (text) => _userPassword = _passwordField.controller.text,
+      onTap: (){
+        final _controller = _passwordField.controller;
+        _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
+      },
+      textCapitalization: TextCapitalization.none,
       obscureText: true,
     );
 
@@ -66,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     return Scaffold(
+        resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
         appBar: DevTrackerAppBar(),
         body: Container(
@@ -88,6 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _updateLoginPreferences();
                       _showSnackBar("Logging in...", true);
                       _makeAuthRequest();
+                      FocusScope.of(context).requestFocus(new FocusNode());//close soft keyboard
                       setState(() {
                         _isLoggingInProgress = true;
                       });
@@ -108,32 +120,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  _initFromPreferences() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+  _initFromPreferences() {
     setState(() {
-      _automaticLogin = prefs.containsKey(PreferencesKeys.AUTOMATIC_LOGIN_KEY) ? prefs.getBool(PreferencesKeys.AUTOMATIC_LOGIN_KEY) : false;
+      _automaticLogin = AppPreferences.appPreferences.containsKey(AppPreferences.AUTOMATIC_LOGIN_KEY) ? AppPreferences.appPreferences.getBool(AppPreferences.AUTOMATIC_LOGIN_KEY) : false;
       //@TODO: password encoding!
-      _userName = prefs.getString(PreferencesKeys.USER_NAME) ?? "";
-      _userPassword = prefs.getString(PreferencesKeys.USER_PASSWORD) ?? "";
+      _userName = AppPreferences.appPreferences.getString(AppPreferences.USER_NAME) ?? "";
+      _userPassword = AppPreferences.appPreferences.getString(AppPreferences.USER_PASSWORD) ?? "";
     });
   }
 
-  _validateDefaultPreferences() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(!prefs.containsKey(PreferencesKeys.HOST)) {
-      prefs.setString(PreferencesKeys.HOST, "https://dev-time-tracker.cognitran-cloud.com");
+  _validateDefaultPreferences() {
+    if(!AppPreferences.appPreferences.containsKey(AppPreferences.HOST)) {
+      AppPreferences.appPreferences.setString(AppPreferences.HOST, "https://dev-time-tracker.cognitran-cloud.com");
     }
-    if(!prefs.containsKey(PreferencesKeys.PORT)) {
-      prefs.setInt(PreferencesKeys.PORT, 8080);
+    if(!AppPreferences.appPreferences.containsKey(AppPreferences.PORT)) {
+      AppPreferences.appPreferences.setInt(AppPreferences.PORT, 8080);
     }
   }
 
   _updateLoginPreferences() async
   {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(PreferencesKeys.AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
-    prefs.setString(PreferencesKeys.USER_NAME, _automaticLoginCB.value ? _userName : "");
-    prefs.setString(PreferencesKeys.USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");
+    AppPreferences.appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
+    AppPreferences.appPreferences.setString(AppPreferences.USER_NAME, _automaticLoginCB.value ? _userName : "");
+    AppPreferences.appPreferences.setString(AppPreferences.USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");
   }
 
   _showSnackBar(final String message, final bool showProgressIndicator, {Duration duration = const Duration(hours: 1)}) {
@@ -156,9 +166,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _makeAuthRequest() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var host = prefs.getString(PreferencesKeys.HOST);
-    var port = prefs.getInt(PreferencesKeys.PORT);
+    var host = AppPreferences.appPreferences.getString(AppPreferences.HOST);
+    var port = AppPreferences.appPreferences.getInt(AppPreferences.PORT);
     Map<String, String> headers = {"Content-type": "application/json"};
 
     final post = await http.post("$host:$port/auth", headers: headers, body: '{"username":"$_userName","password":"$_userPassword"}')

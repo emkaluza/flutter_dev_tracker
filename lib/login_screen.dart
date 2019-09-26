@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'utils/preferences_keys.dart' as PreferencesKeys;
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,10 +14,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  static const String _AUTOMATIC_LOGIN_KEY = "automaticLoggin";
-  static const String _USER_NAME = "userName";
-  static const String _USER_PASSWORD = "userPassword";
-
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   //set default values for screen controls
@@ -26,10 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
   TextField _userNameField;
   TextField _passwordField;
   Checkbox _automaticLoginCB;
-  final SnackBar _loginInProgressSnackBar = SnackBar(
-    content: Text("Loging in..."),
-    duration: Duration(),
-  );
 
   bool _isLoggingInProgress = false;
 
@@ -38,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _validateDefaultPreferences();
     _initFromPreferences();
   }
 
@@ -89,7 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text("Login"),
                     onPressed: () {
                       _updateLoginPreferences();
-                      _scaffoldKey.currentState.showSnackBar(_loginInProgressSnackBar);
+                      _showSnackBar("Logging in...", true);
+                      _makeAuthRequest();
                       setState(() {
                         _isLoggingInProgress = true;
                       });
@@ -113,18 +109,72 @@ class _LoginScreenState extends State<LoginScreen> {
   _initFromPreferences() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _automaticLogin = prefs.containsKey(_AUTOMATIC_LOGIN_KEY) ? prefs.getBool(_AUTOMATIC_LOGIN_KEY) : false;
+      _automaticLogin = prefs.containsKey(PreferencesKeys.AUTOMATIC_LOGIN_KEY) ? prefs.getBool(PreferencesKeys.AUTOMATIC_LOGIN_KEY) : false;
       //@TODO: password encoding!
-      _userName = prefs.getString(_USER_NAME) ?? "";
-      _userPassword = prefs.getString(_USER_PASSWORD) ?? "";
+      _userName = prefs.getString(PreferencesKeys.USER_NAME) ?? "";
+      _userPassword = prefs.getString(PreferencesKeys.USER_PASSWORD) ?? "";
     });
+  }
+
+  _validateDefaultPreferences() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(!prefs.containsKey(PreferencesKeys.HOST)) {
+      prefs.setString(PreferencesKeys.HOST, "https://dev-time-tracker.cognitran-cloud.com");
+    }
+    if(!prefs.containsKey(PreferencesKeys.PORT)) {
+      prefs.setInt(PreferencesKeys.PORT, 8080);
+    }
   }
 
   _updateLoginPreferences() async
   {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(_AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
-    prefs.setString(_USER_NAME, _automaticLoginCB.value ? _userName : "");
-    prefs.setString(_USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");
+    prefs.setBool(PreferencesKeys.AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
+    prefs.setString(PreferencesKeys.USER_NAME, _automaticLoginCB.value ? _userName : "");
+    prefs.setString(PreferencesKeys.USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");
+  }
+
+  _showSnackBar(final String message, final bool showProgressIndicator, {Duration duration = const Duration(hours: 1)}) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Row(
+        children: <Widget>[
+          Visibility(
+            child: CircularProgressIndicator(),
+            visible: showProgressIndicator,
+          ),
+          Text(message),
+        ],
+      ),
+      duration: duration,
+    ));
+  }
+
+  _hideSnackBar(SnackBarClosedReason reason) {
+    _scaffoldKey.currentState.hideCurrentSnackBar(reason: reason);
+  }
+
+  _makeAuthRequest() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    var host = prefs.getString(PreferencesKeys.HOST);
+    var port = prefs.getInt(PreferencesKeys.PORT);
+    Map<String, String> headers = {"Content-type": "application/json"};
+
+    final post = await http.post("$host:$port/auth", headers: headers, body: '{"username":"$_userName","password":"$_userPassword"}')
+        .timeout(Duration(seconds: 10))
+        .then((_v) {
+      _hideSnackBar(SnackBarClosedReason.dismiss);
+      _showSnackBar("Login succesful", false,duration: Duration(seconds: 3));
+      setState(() {
+        _isLoggingInProgress = false;
+      });
+    }, onError: (error){
+      _hideSnackBar(SnackBarClosedReason.dismiss);
+      _showSnackBar("Login failed, try again", false,duration: Duration(seconds: 3));
+      setState(() {
+        _isLoggingInProgress = false;
+      });
+    });
+
+
   }
 }

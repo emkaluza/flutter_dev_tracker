@@ -17,16 +17,20 @@ class DevTrackerAppBar extends StatefulWidget implements PreferredSizeWidget{
 class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
   @override
   Widget build(BuildContext context) {
+
+    var modalRoute = ModalRoute.of(context);
+
     return AppBar(
       title: const Text("DevTracker"),
       centerTitle: true,
       actions: <Widget>[
+        modalRoute.settings.name.compareTo("/") == 1 ?
         IconButton(
           icon: Icon(Icons.autorenew),
           onPressed: (){
             _refreshPressed();
           },
-        ),
+        ) : Container(),
         IconButton(
           icon: Icon(Icons.build),
           onPressed: (){
@@ -42,7 +46,7 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
   }
 
   void _settingsPressed(){
-
+    Navigator.pushNamed(context, '/settings');
   }
 
 }

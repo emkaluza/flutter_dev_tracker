@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dev_tracker/app_bar.dart';
 import 'package:flutter_dev_tracker/utils/app_preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
@@ -138,9 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  _updateLoginPreferences() async
+  _updateLoginPreferences()
   {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
     AppPreferences.appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
     AppPreferences.appPreferences.setString(AppPreferences.USER_NAME, _automaticLoginCB.value ? _userName : "");
     AppPreferences.appPreferences.setString(AppPreferences.USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");

@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dev_tracker/settings_screen.dart';
 import 'package:flutter_dev_tracker/utils/app_preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'login_screen.dart';
 
 void main() async {
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/' : (context) => LoginScreen(),
         '/tracker' : (context) => null,
+        '/settings' : (context) => SettingsScreen(),
       },
     );
   }

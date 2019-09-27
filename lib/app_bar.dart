@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dev_tracker/settings_screen.dart';
 
 class DevTrackerAppBar extends StatefulWidget implements PreferredSizeWidget{
 
@@ -34,7 +35,9 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
         IconButton(
           icon: Icon(Icons.build),
           onPressed: (){
-            _settingsPressed();
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+              return SettingsScreen(backRouteName: modalRoute.settings.name);
+            }));
           },
         )
       ],
@@ -43,11 +46,6 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
 
   void _refreshPressed(){
 
-  }
-
-  void _settingsPressed(){
-//    Navigator.pushNamed(context, '/settings');
-  Navigator.pushReplacementNamed(context, "/settings");
   }
 
 }

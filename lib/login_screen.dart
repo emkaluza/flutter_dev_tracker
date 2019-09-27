@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _validateDefaultPreferences();
     _initFromPreferences();
   }
 
@@ -126,15 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _userName = AppPreferences.appPreferences.getString(AppPreferences.USER_NAME) ?? "";
       _userPassword = AppPreferences.appPreferences.getString(AppPreferences.USER_PASSWORD) ?? "";
     });
-  }
-
-  _validateDefaultPreferences() {
-    if(!AppPreferences.appPreferences.containsKey(AppPreferences.HOST)) {
-      AppPreferences.appPreferences.setString(AppPreferences.HOST, "https://dev-time-tracker.cognitran-cloud.com");
-    }
-    if(!AppPreferences.appPreferences.containsKey(AppPreferences.PORT)) {
-      AppPreferences.appPreferences.setInt(AppPreferences.PORT, 8080);
-    }
   }
 
   _updateLoginPreferences()

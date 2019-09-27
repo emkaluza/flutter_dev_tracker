@@ -16,6 +16,9 @@ class AppPreferences {
     if(!appPreferences.containsKey(AppPreferences.PORT)) {
       appPreferences.setInt(AppPreferences.PORT, 8080);
     }
+    if(!appPreferences.containsKey(AppPreferences.AUTOMATIC_LOGIN_KEY)) {
+      appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, false);
+    }
 
     return appPreferences;
   }

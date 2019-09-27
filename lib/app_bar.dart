@@ -46,7 +46,8 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
   }
 
   void _settingsPressed(){
-    Navigator.pushNamed(context, '/settings');
+//    Navigator.pushNamed(context, '/settings');
+  Navigator.pushReplacementNamed(context, "/settings");
   }
 
 }

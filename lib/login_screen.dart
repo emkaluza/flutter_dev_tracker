@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dev_tracker/app_bar.dart';
 import 'package:flutter_dev_tracker/utils/app_preferences.dart';
+import 'package:flutter_dev_tracker/utils/http_request.dart';
 import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
@@ -140,13 +141,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _makeAuthRequest() async {
     _updateLoginPreferences();
-    var host = AppPreferences.appPreferences.getString(AppPreferences.HOST);
-    var port = AppPreferences.appPreferences.getInt(AppPreferences.PORT);
-    Map<String, String> headers = {"Content-type": "application/json"};
-
     _showSnackBar("Logging in...", true);
-    final post = await http.post("$host:$port/auth", headers: headers, body: '{"username":"$_userName","password":"$_userPassword"}')
-        .timeout(Duration(seconds: 10))
+    final post = await HttpRequest.createAuthRequest(_userName, _userPassword)
         .then((_v) {
       _hideSnackBar(SnackBarClosedReason.dismiss);
       _showSnackBar("Login succesful", false,duration: Duration(seconds: 3));

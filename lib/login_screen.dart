@@ -23,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   //fields
   TextField _userNameField;
   TextField _passwordField;
-  Checkbox _automaticLoginCB;
 
   bool _isLoggingInProgress = false;
 
@@ -67,15 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: true,
     );
 
-    _automaticLoginCB = Checkbox(
-      value: _automaticLogin,
-      onChanged: (bool updated){
-        setState(() {
-          _automaticLogin = updated;
-        });
-      },
-    );
-
     return Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
@@ -106,13 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   width: double.infinity,
                 ),
-                //temporary remove checkbox, it should be set only in a settings I think
-                /*Row(
-                  children: <Widget>[
-                    Text("Login automatically"),
-                    _automaticLoginCB,
-                  ],
-                )*/
               ],
             ),
           ),
@@ -131,9 +114,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _updateLoginPreferences()
   {
-    AppPreferences.appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, _automaticLoginCB.value);
-    AppPreferences.appPreferences.setString(AppPreferences.USER_NAME, _automaticLoginCB.value ? _userName : "");
-    AppPreferences.appPreferences.setString(AppPreferences.USER_PASSWORD, _automaticLoginCB.value ? _userPassword : "");
+    AppPreferences.appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, _automaticLogin);
+    AppPreferences.appPreferences.setString(AppPreferences.USER_NAME, _automaticLogin ? _userName : "");
+    AppPreferences.appPreferences.setString(AppPreferences.USER_PASSWORD, _automaticLogin ? _userPassword : "");
   }
 
   _showSnackBar(final String message, final bool showProgressIndicator, {Duration duration = const Duration(hours: 1)}) {

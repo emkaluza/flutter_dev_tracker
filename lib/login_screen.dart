@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
-        appBar: DevTrackerAppBar(),
+        appBar: DevTrackerAppBar(_initFromPreferences(), (){}),
         body: Container(
           margin: EdgeInsets.all(20.0),
           child: AbsorbPointer(

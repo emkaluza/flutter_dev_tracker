@@ -3,7 +3,7 @@ import 'package:flutter_dev_tracker/settings_screen.dart';
 
 class DevTrackerAppBar extends StatefulWidget implements PreferredSizeWidget{
 
-  DevTrackerAppBar({Key key}) : preferredSize = Size.fromHeight(kToolbarHeight), super(key : key);
+  DevTrackerAppBar(this._onPreferencesChanged, this._onRefreshPressed, {Key key}) : preferredSize = Size.fromHeight(kToolbarHeight), super(key : key);
 
   @override
   State<StatefulWidget> createState() {
@@ -12,6 +12,8 @@ class DevTrackerAppBar extends StatefulWidget implements PreferredSizeWidget{
 
   @override
   final Size preferredSize;
+  final void Function() _onRefreshPressed;
+  final void Function() _onPreferencesChanged;
 
 }
 
@@ -29,23 +31,28 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
         IconButton(
           icon: Icon(Icons.autorenew),
           onPressed: (){
-            _refreshPressed();
+            // ignore: unnecessary_statements
+            widget._onRefreshPressed;
           },
         ) : Container(),
         IconButton(
           icon: Icon(Icons.build),
           onPressed: (){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
-              return SettingsScreen(backRouteName: modalRoute.settings.name);
-            }));
+            _handleSettingsScreen();
           },
         )
       ],
     );
   }
 
-  void _refreshPressed(){
-
+  void _handleSettingsScreen() async {
+    final result =  await Navigator.push(context, MaterialPageRoute(builder: (context){
+      return SettingsScreen();
+    }));
+    if(result) {
+      // ignore: unnecessary_statements
+      widget._onPreferencesChanged;
+    }
   }
 
 }

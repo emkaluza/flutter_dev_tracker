@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dev_tracker/utils/app_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final String backRouteName;
 
-  SettingsScreen({Key key, @required this.backRouteName}) : super(key: key);
+  SettingsScreen({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -38,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   AppPreferences.appPreferences.setInt(
                       AppPreferences.PORT, int.parse(_portController.text));
                   AppPreferences.appPreferences.setBool(AppPreferences.AUTOMATIC_LOGIN_KEY, _automaticLogin);
-                  Navigator.pushReplacementNamed(context, widget.backRouteName);
+                  Navigator.pop(context, true);
                 }
               },
             ),

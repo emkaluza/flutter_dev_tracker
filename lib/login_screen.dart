@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   //set default values for screen controls
-  bool _automaticLogin = false;
+  bool _automaticLogin = true;
   String _userName = "";
   String _userPassword = "";
   //fields
@@ -33,6 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _initFromPreferences();
+    if(_userName.isNotEmpty && _userPassword.isNotEmpty && _automaticLogin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {_makeAuthRequest();});
+    }
   }
 
   @override
@@ -94,8 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: FlatButton(
                     child: Text("Login"),
                     onPressed: () {
-                      _updateLoginPreferences();
-                      _showSnackBar("Logging in...", true);
                       _makeAuthRequest();
                       FocusScope.of(context).requestFocus(new FocusNode());//close soft keyboard
                       setState(() {
@@ -105,12 +106,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   width: double.infinity,
                 ),
-                Row(
+                //temporary remove checkbox, it should be set only in a settings I think
+                /*Row(
                   children: <Widget>[
                     Text("Login automatically"),
                     _automaticLoginCB,
                   ],
-                )
+                )*/
               ],
             ),
           ),
@@ -154,10 +156,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _makeAuthRequest() async {
+    _updateLoginPreferences();
     var host = AppPreferences.appPreferences.getString(AppPreferences.HOST);
     var port = AppPreferences.appPreferences.getInt(AppPreferences.PORT);
     Map<String, String> headers = {"Content-type": "application/json"};
 
+    _showSnackBar("Logging in...", true);
     final post = await http.post("$host:$port/auth", headers: headers, body: '{"username":"$_userName","password":"$_userPassword"}')
         .timeout(Duration(seconds: 10))
         .then((_v) {

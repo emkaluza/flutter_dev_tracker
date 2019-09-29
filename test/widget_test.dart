@@ -27,4 +27,16 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+
+  test('Can we have multiple then\'s on one future ?', () async {
+    Future f = Future.delayed(Duration(seconds: 1), () => "meine kleine string").then((_value){
+      print('pierwszy raz poszlo - $_value');
+      return true;
+    });
+
+    await f.then((_v){
+      print('drugi raz poszlo - $_v');
+    });
+  });
+
 }

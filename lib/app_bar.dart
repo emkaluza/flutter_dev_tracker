@@ -49,7 +49,7 @@ class _DevTrackerAppBarState extends State<DevTrackerAppBar> {
     final result =  await Navigator.push(context, MaterialPageRoute(builder: (context){
       return SettingsScreen();
     }));
-    if(result) {
+    if(result != null && result) {
       // ignore: unnecessary_statements
       widget._onPreferencesChanged;
     }

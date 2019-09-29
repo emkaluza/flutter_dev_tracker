@@ -15,14 +15,15 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  static final _formKey = GlobalKey<FormState>();
 
   //set default values for screen controls
   bool _automaticLogin = true;
   String _userName = "";
   String _userPassword = "";
   //fields
-  TextField _userNameField;
-  TextField _passwordField;
+  TextFormField _userNameField;
+  TextFormField _passwordField;
 
   bool _isLoggingInProgress = false;
 
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _userNameField = TextField(
+    _userNameField = TextFormField(
       decoration: InputDecoration(
           hintText: "Login"
       ),
@@ -50,9 +51,15 @@ class _LoginScreenState extends State<LoginScreen> {
         _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
       },
       textCapitalization: TextCapitalization.none,
+      validator: (_value){
+        if(_value.isEmpty) {
+          return "Username required";
+        }
+        return null;
+      },
     );
 
-    _passwordField = TextField(
+    _passwordField = TextFormField(
       decoration: InputDecoration(
           hintText: "Password"
       ),
@@ -64,6 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       textCapitalization: TextCapitalization.none,
       obscureText: true,
+      validator: (_value){
+        if(_value.isEmpty) {
+          return "Password required";
+        }
+        return null;
+      },
     );
 
     return Scaffold(
@@ -74,30 +87,36 @@ class _LoginScreenState extends State<LoginScreen> {
           margin: EdgeInsets.all(20.0),
           child: AbsorbPointer(
             absorbing: _isLoggingInProgress,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Image.asset("images/logo.jpeg",
-                  height: 100,
-                  width: 100,),
-                _userNameField,
-                _passwordField,
-                SizedBox(
-                  child: FlatButton(
-                    child: Text("Login"),
-                    onPressed: () {
-                      _makeAuthRequest();
-                      FocusScope.of(context).requestFocus(new FocusNode());//close soft keyboard
-                      setState(() {
-                        _isLoggingInProgress = true;
-                      });
-                    },
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Image.asset("images/logo.jpeg",
+                    height: 100,
+                    width: 100,),
+                  _userNameField,
+                  _passwordField,
+                  SizedBox(
+                    child: FlatButton(
+                      child: Text("Login"),
+                      onPressed: () {
+                        if(!_formKey.currentState.validate()){
+                          return;
+                        }
+                        _makeAuthRequest();
+                        FocusScope.of(context).requestFocus(new FocusNode());//close soft keyboard
+                        setState(() {
+                          _isLoggingInProgress = true;
+                        });
+                      },
+                    ),
+                    width: double.infinity,
                   ),
-                  width: double.infinity,
-                ),
-              ],
-            ),
+                ],
+              ),
+            )
           ),
         )
     );
